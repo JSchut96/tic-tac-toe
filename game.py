@@ -14,10 +14,9 @@ class Gamestate:
         self.board = [[' ' for _ in range(3)] for _ in range(3)]
         self.current_player = 'X'
         self.winner = None
-        self.winning_line = []
+        self.winning_line = None
         self.move_history = []
         self.game_mode = game_mode
-        self.decaying_pos = None
 
     def make_move(self, row, col):
         # return invalid move

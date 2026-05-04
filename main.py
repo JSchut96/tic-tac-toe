@@ -1,7 +1,6 @@
 from game import Gamestate
 
 def print_board(board, highlight=None):
-    print(highlight)
     if highlight is None:
         highlight = set()
 
