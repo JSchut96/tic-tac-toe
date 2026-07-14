@@ -1,77 +1,36 @@
-from game import Gamestate
-
-def print_board(board, highlight=None):
-    if highlight is None:
-        highlight = set()
-
-    for i in range(3):
-        row = []
-
-        for j in range(3):
-            value = board[i][j]
-
-            if (i, j) in highlight:
-                cell = f"[{value}]"
-            else:
-                cell = f" {value} "
-
-            row.append(cell)
-
-        print(" | ".join(row))
-
-
-def choose_mode():
-    while True:
-        print("\nChoose game mode:")
-        print("1. Normal Tic Tac Toe")
-        print("2. Decay mode (3 moves per player)")
-
-        choice = input("> ").strip()
-
-        if choice == "1":
-            return "normal"
-        if choice == "2":
-            return "decay"
-
-        print("Invalid choice, try again.")
+import socket
+from client import client
+import subprocess
+import sys
+import time
+from utils.menus import choose_mode, choose_connection
+from local_game import play_local
 
 def main():
-    mode = choose_mode()
+    while True:
+        # Open menu for local/host/join
+        connection = choose_connection()
 
-    game = Gamestate(mode)
+        if connection == "local":
+            mode = choose_mode()
+            play_local(mode)
 
-    while not game.winner:
-        print()
-        print_board(game.board, game.peek_decay_removal())
+        elif connection == "host":
+            print("Starting server...")
 
-        print(f"Current Player: {game.current_player}")
+            # Start server in background
+            subprocess.Popen([sys.executable, "server.py"])
 
-        try:
-            raw = input("Enter a move (row,col): ")
-            row_str, col_str = raw.split(",")
-            row = int(row_str.strip()) - 1
-            col = int(col_str.strip()) - 1
+            # Give the server a moment to start listening
+            time.sleep(1)
 
-            if not (0 <= row < 3 and 0 <= col < 3):
-                print("Row and column must be between 1 and 3.")
+            client(f"{socket.gethostbyname(socket.gethostname())}:5000")
+
+        elif connection == "join":
+            success = client()
+
+            if not success:
                 continue
-        except ValueError:
-            print("Invalid input. Format should be row,col (e.g. 1,2)")
-            continue
-
-        success = game.make_move(row, col)
-
-        if not success:
-            print("Invalid move. Try again.")
-
-        if game.winner == "draw":
-            print()
-            print_board(game.board)
-            print("It's a draw!")
-        elif game.winner:
-            print()
-            print_board(game.board, game.winning_line)
-            print(f"Winner: Player {game.winner}")
 
 
 if __name__ == "__main__":
