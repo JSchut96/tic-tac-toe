@@ -33,8 +33,6 @@ cd tic-tac-toe
 python3 main.py
 ```
 
-Run the project using your preferred IDE or build system.
-
 ## License
 
 This project is for learning and personal use.
